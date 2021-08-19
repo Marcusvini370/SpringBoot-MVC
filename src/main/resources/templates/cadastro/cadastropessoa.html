@@ -1,10 +1,16 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-br"
+      xlmns="http://www.w3.org/1999/xhtml" xmlns:th=http://www.thymeleaf.org"">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
     <title>Cadastro de Pessoa</title>
 </head>
 <body>
@@ -18,8 +24,25 @@
          <input name="sobrenome">
          <label>Idade</label>
          <input type="number" name="idade">
-         <input type="submit" value="Salvar">
+         <input class="waves-effect waves-light btn" type="submit" value="Salvar">
      </form>
 
+    <a class="waves-effect waves-light btn" href="/listapessoas" style="margin-top:30px;">Lista de Pessoas</a>
+
+       <table>
+           <tr th:each = "pessoa : ${pessoas}">
+                <td th:text="${pessoa.id}"></td>
+               <td th:text="${pessoa.nome}"></td>
+               <td th:text="${pessoa.sobrenome}"></td>
+               <td th:text="${pessoa.idade}"></td>
+           </tr>
+       </table>
+
 </body>
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+
+
 </html>
