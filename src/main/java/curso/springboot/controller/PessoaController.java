@@ -4,12 +4,16 @@ import curso.springboot.model.Pessoa;
 import curso.springboot.model.Telefone;
 import curso.springboot.repository.PessoaRepository;
 import curso.springboot.repository.TelefoneRepository;
-import org.dom4j.rule.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -33,7 +37,34 @@ public class PessoaController {
     }
 
     @PostMapping(value="**/salvarpessoa") // os dois ** faz ignorar tudo que vem antes da url /salvarpessoa
-    public ModelAndView salvar(Pessoa pessoa){
+    public ModelAndView salvar(@Valid Pessoa pessoa, BindingResult bindingResult){
+
+        //validações @Valid pra usar as validações do model
+        //bindingResult objetos de erro
+        if(bindingResult.hasErrors()) { //se tiver erro vai entrar aqui dentro
+
+            ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
+            Iterable<Pessoa> pessoasIterator = pessoaRepository.findAll();
+            modelAndView.addObject("pessoas", pessoasIterator);
+
+            //passa o objeto que ta vindo da view vai continuar os dados da pessoa
+            //fazer a validação e mostrar os erros que tá tendo
+            modelAndView.addObject("pessoaobj", pessoa);
+
+
+            List<String> msgValidacao = new ArrayList<String>();
+            //varre os erros encontrados pelo objetos de erros e a lista do binding
+            for(ObjectError objectError : bindingResult.getAllErrors()) {
+
+                //getDefaultMessage() vem das anotações da model NotBlank e outras
+                msgValidacao.add(objectError.getDefaultMessage());
+            }
+
+            modelAndView.addObject("msg", msgValidacao);
+
+            return modelAndView;
+        }
+
         pessoaRepository.save(pessoa);
 
         //Após o cadastro irá listas as pessoas já cadastradas
@@ -91,6 +122,7 @@ public class PessoaController {
 
         ModelAndView modelAndView = new ModelAndView("cadastro/telefones");
         modelAndView.addObject("pessoaobj", pessoa.get());
+        modelAndView.addObject("telefones", telefoneRepository.getTelefones(idpessoa));
         return modelAndView;
     }
 
@@ -103,6 +135,20 @@ public class PessoaController {
 
         ModelAndView  modelAndView = new ModelAndView("cadastro/telefones");
         modelAndView.addObject("pessoaobj", pessoa);
+        modelAndView.addObject("telefones", telefoneRepository.getTelefones(pessoaid));
+        return modelAndView;
+    }
+
+    @GetMapping("**/removertelefone/{idtelefone}")
+    public ModelAndView removertelefone(@PathVariable("idtelefone") Long idtelefone){
+
+       Pessoa pessoa = telefoneRepository.findById(idtelefone).get().getPessoa();
+
+        telefoneRepository.deleteById(idtelefone);
+
+        ModelAndView modelAndView = new ModelAndView("cadastro/telefones");
+        modelAndView.addObject("pessoaobj", pessoa);
+        modelAndView.addObject("telefones", telefoneRepository.getTelefones(pessoa.getId()));
         return modelAndView;
     }
 
