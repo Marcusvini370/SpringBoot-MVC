@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -21,5 +22,7 @@ public class Pessoa implements Serializable {
     private String sobrenome;
     private Integer idade;
 
+    @OneToMany(mappedBy = "pessoa")
+    private List<Telefone> telefones;
 
 }

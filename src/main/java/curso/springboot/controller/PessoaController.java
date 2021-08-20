@@ -1,7 +1,9 @@
 package curso.springboot.controller;
 
 import curso.springboot.model.Pessoa;
+import curso.springboot.model.Telefone;
 import curso.springboot.repository.PessoaRepository;
+import curso.springboot.repository.TelefoneRepository;
 import org.dom4j.rule.Mode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,11 +18,16 @@ public class PessoaController {
     @Autowired
     private PessoaRepository pessoaRepository;
 
+    @Autowired
+    private TelefoneRepository telefoneRepository;
+
     @RequestMapping(method = RequestMethod.GET, value="/cadastropessoa")
     public ModelAndView inicio(){
 
         ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
         modelAndView.addObject("pessoaobj", new Pessoa());
+        Iterable<Pessoa> pessoasIt = pessoaRepository.findAll(); // para carrega a lista direto
+        modelAndView.addObject("pessoas", pessoasIt);
 
         return modelAndView;
     }
@@ -74,6 +81,28 @@ public class PessoaController {
         modelAndView.addObject("pessoas", pessoaRepository.findPessoaByName(nomepesquisa));
         modelAndView.addObject("pessoaobj", new Pessoa());
 
+        return modelAndView;
+    }
+
+    @GetMapping("/telefones/{idpessoa}")
+    public ModelAndView telefones(@PathVariable("idpessoa") Long idpessoa){
+
+        Optional<Pessoa> pessoa = pessoaRepository.findById(idpessoa);
+
+        ModelAndView modelAndView = new ModelAndView("cadastro/telefones");
+        modelAndView.addObject("pessoaobj", pessoa.get());
+        return modelAndView;
+    }
+
+    @PostMapping("**/addfonePessoa/{pessoaid}")
+    public ModelAndView addFonePessoa(Telefone telefone, @PathVariable("pessoaid") Long pessoaid){
+
+        Pessoa pessoa = pessoaRepository.findById(pessoaid).get();
+        telefone.setPessoa(pessoa);
+        telefoneRepository.save(telefone);
+
+        ModelAndView  modelAndView = new ModelAndView("cadastro/telefones");
+        modelAndView.addObject("pessoaobj", pessoa);
         return modelAndView;
     }
 
