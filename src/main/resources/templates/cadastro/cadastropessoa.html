@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="pt-br"
-      xlmns="http://www.w3.org/1999/xhtml" xmlns:th=http://www.thymeleaf.org"">
+      xlmns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
@@ -50,7 +51,7 @@
         </div>
 
         <div class="row">
-            <div class="input-fiel col s12">
+            <div class="input-fiel col s12" >
                 <label class="active" for="sobrenome">Sobrenome</label>
                 <input class="validate" id="sobrenome" name="sobrenome" th:field="*{sobrenome}">
             </div>
