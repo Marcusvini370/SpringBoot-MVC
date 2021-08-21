@@ -39,6 +39,8 @@ public class PessoaController {
     @PostMapping(value = "**/salvarpessoa") // os dois ** faz ignorar tudo que vem antes da url /salvarpessoa
     public ModelAndView salvar(@Valid Pessoa pessoa, BindingResult bindingResult) {
 
+        pessoa.setTelefones(telefoneRepository.getTelefones(pessoa.getId()));
+
         //validações @Valid pra usar as validações do model
         //bindingResult objetos de erro
         if (bindingResult.hasErrors()) { //se tiver erro vai entrar aqui dentro
