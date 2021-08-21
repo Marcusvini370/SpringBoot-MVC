@@ -11,11 +11,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EntityScan(basePackages = ("curso.springboot.model")) // faz o escaneamento das entidades do projeto
 @ComponentScan(basePackages = {"curso.*"}) // mapeia todos os pacotes como os controllers
 @EnableJpaRepositories(basePackages = {"curso.springboot.repository"}) // para reconhecer os repositorys
-@EnableTransactionManagement // habilita a parte de transações do bd
+@EnableTransactionManagement // habilita a parte de transações do banco de dados
 public class SpringbootApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringbootApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SpringbootApplication.class, args);
+    }
 
 }

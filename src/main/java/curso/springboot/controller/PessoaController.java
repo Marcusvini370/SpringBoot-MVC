@@ -25,8 +25,8 @@ public class PessoaController {
     @Autowired
     private TelefoneRepository telefoneRepository;
 
-    @RequestMapping(method = RequestMethod.GET, value="/cadastropessoa")
-    public ModelAndView inicio(){
+    @RequestMapping(method = RequestMethod.GET, value = "/cadastropessoa")
+    public ModelAndView inicio() {
 
         ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
         modelAndView.addObject("pessoaobj", new Pessoa());
@@ -36,12 +36,12 @@ public class PessoaController {
         return modelAndView;
     }
 
-    @PostMapping(value="**/salvarpessoa") // os dois ** faz ignorar tudo que vem antes da url /salvarpessoa
-    public ModelAndView salvar(@Valid Pessoa pessoa, BindingResult bindingResult){
+    @PostMapping(value = "**/salvarpessoa") // os dois ** faz ignorar tudo que vem antes da url /salvarpessoa
+    public ModelAndView salvar(@Valid Pessoa pessoa, BindingResult bindingResult) {
 
         //validações @Valid pra usar as validações do model
         //bindingResult objetos de erro
-        if(bindingResult.hasErrors()) { //se tiver erro vai entrar aqui dentro
+        if (bindingResult.hasErrors()) { //se tiver erro vai entrar aqui dentro
 
             ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
             Iterable<Pessoa> pessoasIterator = pessoaRepository.findAll();
@@ -54,7 +54,7 @@ public class PessoaController {
 
             List<String> msgValidacao = new ArrayList<String>();
             //varre os erros encontrados pelo objetos de erros e a lista do binding
-            for(ObjectError objectError : bindingResult.getAllErrors()) {
+            for (ObjectError objectError : bindingResult.getAllErrors()) {
 
                 //getDefaultMessage() vem das anotações da model NotBlank e outras
                 msgValidacao.add(objectError.getDefaultMessage());
@@ -76,17 +76,17 @@ public class PessoaController {
         return andView;
     }
 
-    @GetMapping(value="/listapessoas")
-    public ModelAndView pessoas(){
-            ModelAndView andView = new ModelAndView("cadastro/cadastropessoa");
-            Iterable<Pessoa> pessoasIt = pessoaRepository.findAll();
-            andView.addObject("pessoas", pessoasIt);
-            andView.addObject("pessoaobj", new Pessoa());
-            return andView;
+    @GetMapping(value = "/listapessoas")
+    public ModelAndView pessoas() {
+        ModelAndView andView = new ModelAndView("cadastro/cadastropessoa");
+        Iterable<Pessoa> pessoasIt = pessoaRepository.findAll();
+        andView.addObject("pessoas", pessoasIt);
+        andView.addObject("pessoaobj", new Pessoa());
+        return andView;
     }
 
     @GetMapping("/editarpessoa/{idpessoa}")
-    public ModelAndView editar(@PathVariable("idpessoa") Long idpessoa){
+    public ModelAndView editar(@PathVariable("idpessoa") Long idpessoa) {
 
         Optional<Pessoa> pessoa = pessoaRepository.findById(idpessoa);
 
@@ -96,7 +96,7 @@ public class PessoaController {
     }
 
     @GetMapping("**/removerpessoa/{idpessoa}")
-    public ModelAndView remover(@PathVariable("idpessoa") Long idpessoa){
+    public ModelAndView remover(@PathVariable("idpessoa") Long idpessoa) {
 
         pessoaRepository.deleteById(idpessoa);
 
@@ -107,7 +107,7 @@ public class PessoaController {
     }
 
     @PostMapping("**/pesquisarpessoa")
-    public  ModelAndView pesquisar(@RequestParam("nomepesquisa") String nomepesquisa){
+    public ModelAndView pesquisar(@RequestParam("nomepesquisa") String nomepesquisa) {
         ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
         modelAndView.addObject("pessoas", pessoaRepository.findPessoaByName(nomepesquisa));
         modelAndView.addObject("pessoaobj", new Pessoa());
@@ -116,7 +116,7 @@ public class PessoaController {
     }
 
     @GetMapping("/telefones/{idpessoa}")
-    public ModelAndView telefones(@PathVariable("idpessoa") Long idpessoa){
+    public ModelAndView telefones(@PathVariable("idpessoa") Long idpessoa) {
 
         Optional<Pessoa> pessoa = pessoaRepository.findById(idpessoa);
 
@@ -127,22 +127,43 @@ public class PessoaController {
     }
 
     @PostMapping("**/addfonePessoa/{pessoaid}")
-    public ModelAndView addFonePessoa(Telefone telefone, @PathVariable("pessoaid") Long pessoaid){
+    public ModelAndView addFonePessoa(Telefone telefone, @PathVariable("pessoaid") Long pessoaid) {
 
         Pessoa pessoa = pessoaRepository.findById(pessoaid).get();
+
+        //Validação manual dos campos do telefone sem afetar outras partes do sistema
+        if (telefone != null && telefone.getNumero().isEmpty() || telefone.getTipo().isEmpty()) {
+            ModelAndView modelAndView = new ModelAndView("cadastro/telefones");
+            modelAndView.addObject("pessoaobj", pessoa);
+            modelAndView.addObject("telefones", telefoneRepository.getTelefones(pessoaid));
+
+            List<String> msg = new ArrayList<String>();
+            if (telefone.getNumero().isEmpty()) {
+                msg.add("Número deve ser informado");
+            }
+            if (telefone.getTipo().isEmpty()) {
+                msg.add("Tipo deve ser informado");
+            }
+
+
+            modelAndView.addObject("msg", msg);
+
+            return modelAndView;
+        }
+
         telefone.setPessoa(pessoa);
         telefoneRepository.save(telefone);
 
-        ModelAndView  modelAndView = new ModelAndView("cadastro/telefones");
+        ModelAndView modelAndView = new ModelAndView("cadastro/telefones");
         modelAndView.addObject("pessoaobj", pessoa);
         modelAndView.addObject("telefones", telefoneRepository.getTelefones(pessoaid));
         return modelAndView;
     }
 
     @GetMapping("**/removertelefone/{idtelefone}")
-    public ModelAndView removertelefone(@PathVariable("idtelefone") Long idtelefone){
+    public ModelAndView removertelefone(@PathVariable("idtelefone") Long idtelefone) {
 
-       Pessoa pessoa = telefoneRepository.findById(idtelefone).get().getPessoa();
+        Pessoa pessoa = telefoneRepository.findById(idtelefone).get().getPessoa();
 
         telefoneRepository.deleteById(idtelefone);
 

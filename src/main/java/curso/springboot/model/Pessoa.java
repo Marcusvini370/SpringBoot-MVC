@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 public class Pessoa implements Serializable {
 
-  private static long  serialVersionUID = 1L;
+    private static long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
