@@ -117,7 +117,7 @@ public class PessoaController {
         return modelAndView;
     }
 
-    @GetMapping("/telefones/{idpessoa}")
+    @GetMapping("**/telefones/{idpessoa}")
     public ModelAndView telefones(@PathVariable("idpessoa") Long idpessoa) {
 
         Optional<Pessoa> pessoa = pessoaRepository.findById(idpessoa);
