@@ -33,6 +33,7 @@
 </head>
 <body>
 <h3>Spring Boot + Thymeleaf + Material Design Lite</h3>
+<fieldset>
 <h5 style="margin-top:50px;">Cadastro de Pessoa</h5>
 
 <div class="row">
@@ -56,11 +57,24 @@
         </div>
 
         <div class="row">
-            <div class="input-fiel col s12" >
+            <div class="input-fiel col s6" >
                 <label class="active" for="sobrenome">Sobrenome</label>
                 <input class="validate" id="sobrenome" name="sobrenome" th:field="*{sobrenome}">
             </div>
+
+            <div class="input-fiel col s6" >
+                <label class="active" for="sexo">Sexo</label>
+                <select class="browser-default" id="sexo" name="sobrenome" th:field="*{sexopessoa}">
+                    <option value="" disable selected>--[Selecione]--</option>
+                    <option value="MASCULINO" th:text="Masculino"/>
+                    <option value="FEMININO" th:text="Feminino"/>
+                </select>
+            </div>
         </div>
+
+
+
+
         <div class="row">
             <div class="input-fiel col s12">
                 <label class="active" for="idade">Idade</label>
@@ -123,23 +137,39 @@
 
     </form>
 </div>
+</fieldset>
 </br>
 </br>
 
-
+<fieldset>
+    <legend>Campos de pesquisa</legend>
 <div class="row">
     <form action="pesquisarpessoa" class="col s12" method="post" style="margin-top:30px;">
         <div class="row">
-            <div class="input-fiel col s12">
+            <div class="input-fiel col s6">
                 <label clas="active" for="nomepesquisa">Pesquisa por nome:</label>
                 <input class="validate" id="nomepesquisa" name="nomepesquisa">
+            </div>
+
+            <div class="input-fiel col s6">
+                   <label for="pesqsexo">Pesquisa por Sexo</label>
+                <select class="browser-default" id="pesqsexo" name="pesqsexo">
+                    <option value="" >--[Todos]--</option>
+                    <option value="MASCULINO" th:text="Masculino"/>
+                    <option value="FEMININO" th:text="Feminino"/>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-fiel col s6">
                 <input class="waves-effect waves-light btn" type="submit" value="Buscar">
                 <a class="waves-effect waves-light btn" href="/listapessoas">Lista de Pessoas</a>
             </div>
         </div>
-
-
     </form>
+</fieldset>
+
+
 
     <table class="striped" style="margin-top:30px;">
         <thead>
