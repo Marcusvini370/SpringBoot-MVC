@@ -11,6 +11,8 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,9 @@ public class PessoaController {
 
     @Autowired
     private TelefoneRepository telefoneRepository;
+
+    @Autowired
+    private ReportUtil reportUtil;
 
     @RequestMapping(method = RequestMethod.GET, value = "/cadastropessoa")
     public ModelAndView inicio() {
@@ -115,18 +120,65 @@ public class PessoaController {
         List<Pessoa> pessoas = new ArrayList<Pessoa>();
 
         //Filtro de busca por sexo caso tenha selecionado
-        if(pesqsexo != null && !pesqsexo.isEmpty()){
-            pessoas = pessoaRepository.findPessoaByNameSexo(nomepesquisa,pesqsexo);
+        if (pesqsexo != null && !pesqsexo.isEmpty()) {
+            pessoas = pessoaRepository.findPessoaByNameSexo(nomepesquisa, pesqsexo);
 
-        }else{//Caso não tenha selecionado a opção do sexo irá só  pesquisar por nome
+        } else {//Caso não tenha selecionado a opção do sexo irá só  pesquisar por nome
             pessoas = pessoaRepository.findPessoaByName(nomepesquisa);
         }
 
         ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
         modelAndView.addObject("pessoas", pessoas); //vai passar pela lista
-        modelAndView.addObject("pessoaobj", new Pessoa());
+        modelAndView.addObject("pessoaobj", new Pessoa()) ;
 
         return modelAndView;
+    }
+
+    @GetMapping("**/pesquisarpessoa")
+    public void imprimiPdf(@RequestParam("nomepesquisa") String nomepesquisa,
+                           @RequestParam("pesqsexo") String pesqsexo,
+                           HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        //lista de pessoas o msm que foi criado com o jasper
+        List<Pessoa> pessoas = new ArrayList<Pessoa>();
+
+        if (pesqsexo != null && !pesqsexo.isEmpty()
+                && nomepesquisa != null && !nomepesquisa.isEmpty()) { //busca por nome e sexo
+
+            pessoas = pessoaRepository.findPessoaByNameSexo(nomepesquisa.trim().toUpperCase(), pesqsexo);
+
+        } else if (nomepesquisa != null && !nomepesquisa.isEmpty()) { //busca somente por nome
+
+            pessoas = pessoaRepository.findPessoaByName(nomepesquisa.trim().toUpperCase());
+
+        } else if (pesqsexo != null && !pesqsexo.isEmpty()) { //busca somente por sexo
+
+            pessoas = pessoaRepository.findPessoaBySexo(pesqsexo);
+
+        } else {  // busca todos
+            Iterable<Pessoa> iterator = pessoaRepository.findAll();
+
+            for (Pessoa pessoa : iterator) {
+                pessoas.add(pessoa); //vai adicionar as pessoa desse iterator pra lista de pessoas
+            }
+        }
+
+        //chamar o  serviço que faz a geração do relatorio
+        byte[] pdf = reportUtil.gerarRelatorio(pessoas, "pessoa", request.getServletContext());
+
+        //tamanho da resposta
+        response.setContentLength(pdf.length);
+
+        //definir na resposta o tipo de arquivo aquivo pdf arquivo de midia
+        response.setContentType("application/octet-stream");
+
+        //Definir o cabeçalho da resposta
+        String headerKey = "Content-Disposition";
+        String headerValue = String.format("attachment; filename=\"%s\"", "relatorio.pdf");
+        response.setHeader(headerKey, headerValue);
+
+        //finaliza a resposta pro navegador
+        response.getOutputStream().write(pdf);
     }
 
     @GetMapping("**/telefones/{idpessoa}")

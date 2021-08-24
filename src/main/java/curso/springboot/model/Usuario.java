@@ -26,8 +26,8 @@ public class Usuario implements UserDetails {
     @JoinTable(name = "usuarios_role", joinColumns = @JoinColumn
             (name = "usuario_id", referencedColumnName = "id",
                     table = "usuario"),// Cria tabela de acesso do usuário
-    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id",
-    table="role"))
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id",
+                    table = "role"))
     private List<Role> roles;
 
     @Override
