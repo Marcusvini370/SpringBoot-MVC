@@ -3,6 +3,7 @@ package curso.springboot.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -37,6 +39,12 @@ public class Pessoa implements Serializable {
     @OneToMany(mappedBy = "pessoa", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Telefone> telefones;
 
+    @ManyToOne
+    private Profissao profissao;
+
+    @Enumerated(EnumType.STRING)
+    private Cargo cargo;
+
     private String sexopessoa;
 
     private String cep;
@@ -45,5 +53,15 @@ public class Pessoa implements Serializable {
     private String cidade;
     private String uf;
     private String ibge;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Temporal(TemporalType.DATE)
+    private Date dataNascimento;
+
+    @Lob
+    private byte[] curriculo;
+
+    private String nomeFileCurriculo;
+    private String tipoFileCurriculo;
 
 }
