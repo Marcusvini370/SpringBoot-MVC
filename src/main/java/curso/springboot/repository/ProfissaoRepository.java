@@ -7,5 +7,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ProfissaoRepository  extends CrudRepository<Profissao, Long> {
+public interface ProfissaoRepository extends CrudRepository<Profissao, Long> {
 }

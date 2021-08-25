@@ -17,7 +17,7 @@ public class ReportUtil implements Serializable {
 
     /*Retorna nosso PDF em byte para download no navegador */
     public byte[] gerarRelatorio(List listDados,
-                                 String relatorio, ServletContext servletContext) throws Exception  {
+                                 String relatorio, ServletContext servletContext) throws Exception {
 
         /* Cria a lista de dados para o relatório com nossa lista de objetos para imprimir*/
         JRBeanCollectionDataSource jrbcds = new JRBeanCollectionDataSource(listDados);

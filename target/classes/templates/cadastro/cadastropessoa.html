@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="pt-br"
-      xlmns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
->
+      xlmns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
@@ -31,17 +30,24 @@
             color:white;
         }
 
-
-
+table{
+    width: 100%;
+}
+table td, table th{
+    border: 1px solid grey;
+}
+table th{
+    background: #eee;
+}
 
 
 
     </style>
 </head>
 <body>
-<h3>Spring Boot + Thymeleaf + Material Design Lite</h3>
+<h3 style="text-align:center;">Spring Boot + Thymeleaf + Material Design Lite</h3>
 <fieldset>
-    <h5 style="margin-top:50px;">Cadastro de Pessoa</h5>
+    <legend>Cadastro de Pessoa</legend>
 
     <div class="row">
 
@@ -50,8 +56,8 @@
 	      </span> <!-- passa um texto com nosso objeto de msg dos erro de validação -->
         </div>
 
-        <form action="salvarpessoa" class="col s12" id="formpessoa" method="post" th:object="${pessoaobj}"
-              enctype="multipart/form-data">
+        <form action="salvarpessoa" class="col s12" enctype="multipart/form-data" id="formpessoa" method="post"
+              th:object="${pessoaobj}">
 
             <div class="row">
                 <div class="input-fiel col s2">
@@ -93,33 +99,37 @@
                     <label class="active" for="profissao">Profissão</label>
                     <select class="browser-default" id="profissao" name="profissao" th:field="*{profissao}">
                         <option value="">Selecione Profissão</option>
-                      <option th:each="p : ${profissoes}" th:value="${p.id}" th:text="${p.nome}"/>
+                        <option th:each="p : ${profissoes}" th:text="${p.nome}" th:value="${p.id}"/>
                     </select>
                 </div>
 
             </div>
             <div class="row">
-            <div class="input-fiel col s6">
-                <label for="cargo" class="active">Cargos</label> <select
-                    class="browser-default" id="cargo" th:field="*{cargo}">
-                <option value="">Selecione um Cargo</option>
-                <option th:each="c : ${T(curso.springboot.model.Cargo).values()}"
-                        th:value="${c.valor}" th:text="${c.nome}">
-            </select>
-            </div>
+                <div class="input-fiel col s6">
+                    <label class="active" for="cargo">Cargos</label> <select
+                        class="browser-default" id="cargo" th:field="*{cargo}">
+                    <option value="">Selecione um Cargo</option>
+                    <option th:each="c : ${T(curso.springboot.model.Cargo).values()}"
+                            th:text="${c.nome}" th:value="${c.valor}">
+                </select>
+                </div>
 
                 <div class="input-fiel col s6">
                     <label for="dataNascimento">Data Nascimento:</label>
-                    <input type="date" id="dataNascimento" th:fiel="*{dataNascimento}"
-                           name="dataNascimento" placeholder="Data Nasc.">
+                    <input id="dataNascimento" name="dataNascimento" placeholder="Data Nasc."
+                           th:fiel="*{dataNascimento}" type="date">
                 </div>
-                            </div>
+            </div>
 
-            <div class="row">
-                <div  class="input-fiel col s12">
-                    <label for="file" class="active">Currículo:</label>
-                    <input type="file" id="file" name="file" class="file-field input-field">
-                </div>
+
+            <div class="file-field input-field row fiel inoput-fiel col s12">
+            <div class="btn">
+                 <label class="active" for="file" style="color:white;">Currículo:</label>
+                <input type="file">
+            </div>
+            <div class="file-path-wrapper">
+                <input class="file-path validate" type="text" name="file" id="file" >
+            </div>
             </div>
 
             <div class="row">
@@ -208,8 +218,8 @@
                            onclick="document.getElementById('pesquisarpessoa').method = 'get'"
                            type="submit" value="PDF">
 
-                    <input class="waves-effect waves-light btn" type="submit" value="Buscar" >
-                    <a class="waves-effect waves-light btn" href="/listapessoas">Lista de Pessoas</a>
+                    <input class="waves-effect waves-light btn" type="submit" value="Buscar">
+
                 </div>
             </div>
         </form>
@@ -227,19 +237,40 @@
         <th>Remover</th>
     </tr>
     </thead>
-    <tr th:each="pessoa : ${pessoas}">
+    <tr th:each="pessoa : ${pessoas.content}"> <!-- Vai carregar e continuar da lista em vez de sair -->
         <td th:text="${pessoa.id}"></td>
         <td><a th:href="@{telefones/{idpessoa}(idpessoa=${pessoa.id})}"><span th:text="${pessoa.nome}"></span></a>
         </td>
         <td th:text="${pessoa.sobrenome}"></td>
         <td>
-            <a th:if="${pessoa.curriculo != null}" th:href="@{/baixarcurriculo/{idpessoa}(idpessoa=${pessoa.id})}">Download</a>
-            <a th:if="${pessoa.curriculo == null}" style="color: red;">Não Possui</a>
+            <a th:href="@{/baixarcurriculo/{idpessoa}(idpessoa=${pessoa.id})}" th:if="${pessoa.curriculo != null}">Download</a>
+            <a style="color: red;" th:if="${pessoa.curriculo == null}">Não Possui</a>
         </td>
         <td><a th:href="@{/editarpessoa/{idpessoa}(idpessoa=${pessoa.id})}">Editar</a></td>
         <td><a th:href="@{removerpessoa/{idpessoa}(idpessoa=${pessoa.id})}">Remover</a></td>
     </tr>
 </table>
+
+<div class="row" style="margin-top: 30px; text-align:center; font-size:18px;">
+
+
+     <span th:if="${pessoas.hasPrevious()}"> <!-- se tiver avançado a paginação e tiver paginas anteriores pra ser mostrada pode retroceder -->
+         <a th:href="@{/pessoaspag(page=${pessoas.number-1}, size=${pessoas.size},nomepesquisa=${nomepesquisa})}">Anterior</a>
+     </span>
+
+
+    <!-- i é o indice daonde começa , sequencia 0 tb onde começa, pessoas que tem todos os dados e o total de paginas - 1 pq retorna array iniciando em 0 -->
+    <th:block th:each="i: ${#numbers.sequence(0, pessoas.totalPages - 1)}">
+        <a th:href="@{/pessoaspag(page=${i}, size=${pessoas.size}, nomepesquisa=${nomepesquisa})}">[[ ${i} + 1 ]],</a>
+        <!-- método do nosso backend de paginação na posiçaõ do i  [[ ${i} +1 ]] montar a paginação pra gente na tela-->
+    </th:block>
+
+    <span th:if="${pessoas.hasNext()}"> <!-- eqnt tiver páginas pela frente ele vai avaçar até o seu máximo da size tamanho da página -->
+         <a th:href="@{/pessoaspag(page=${pessoas.number+1}, size=${pessoas.size}, nomepesquisa=${nomepesquisa})}">Próximo</a>
+     </span>
+
+
+</div>
 
 </body>
 
@@ -314,6 +345,7 @@
                 }
             });
         });
+
 
 
 

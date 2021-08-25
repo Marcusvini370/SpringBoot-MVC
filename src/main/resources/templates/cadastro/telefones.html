@@ -22,21 +22,16 @@
             color:white;
         }
 
-
-
-
-
-
-
-
     </style>
 </head>
 <body>
-<h3>Spring Boot + Thymeleaf + Material Design Lite</h3>
-<h5 style="margin-top:50px;">Cadastro de Pessoa</h5>
+<h3 style="text-align:center;">Spring Boot + Thymeleaf + Material Design Lite</h3>
 
-<a class="waves-effect waves-light btn" href="/cadastropessoa">Cadastro</a>
-<div th:each="p : ${pessoaobj}">
+
+
+    <h5 style="margin-top:50px; text-align:center;">Cadastro de Pessoa</h5>
+<a class="waves-effect waves-light btn" href="/cadastropessoa" style="margin-left:44%">Cadastro</a>
+<div th:each="p : ${pessoaobj}" style="display:flex; justify-content:center;">
     <div class="row">
         <p>ID: <span th:text="${p.id}"></span></p>
         <p>Nome: <span th:text="${p.nome}"></span></p>
@@ -45,6 +40,7 @@
 
     </div>
 </div>
+
 
 <h5>Telefones</h5>
 
@@ -105,12 +101,6 @@
         }
         return true;
     }
-
-
-
-
-
-
 
 
 </script>

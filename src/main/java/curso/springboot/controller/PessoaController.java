@@ -6,8 +6,11 @@ import curso.springboot.repository.PessoaRepository;
 import curso.springboot.repository.ProfissaoRepository;
 import curso.springboot.repository.TelefoneRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -51,8 +54,10 @@ public class PessoaController {
 
         return modelAndView;
     }
+
     // os dois ** faz ignorar tudo que vem antes da url /salvarpessoa
-    @PostMapping(value = "**/salvarpessoa", consumes = {"multipart/form-data"}) // o consume é pra aceitar o upload no form
+    @PostMapping(value = "**/salvarpessoa", consumes = {"multipart/form-data"})
+    // o consume é pra aceitar o upload no form
     public ModelAndView salvar(@Valid Pessoa pessoa,
                                BindingResult bindingResult, final MultipartFile file) throws IOException {
 
@@ -83,12 +88,12 @@ public class PessoaController {
             return modelAndView;
         }
 
-        if(file.getSize() > 0){ //Cadastrando um currículo
+        if (file.getSize() > 0) { //Cadastrando um currículo
             pessoa.setCurriculo(file.getBytes());
             pessoa.setTipoFileCurriculo(file.getContentType());
             pessoa.setNomeFileCurriculo(file.getOriginalFilename());
-        }else{
-            if(pessoa.getId() != null && pessoa.getId() >0){ //editando
+        } else {
+            if (pessoa.getId() != null && pessoa.getId() > 0) { //editando
                 Pessoa pessoaTemp = pessoaRepository.findById(pessoa.getId()).get(); //carrega a pessoa do bd
 
                 pessoa.setCurriculo(pessoaTemp.getCurriculo()); // mantém o curriculo
@@ -102,19 +107,29 @@ public class PessoaController {
 
         //Após o cadastro irá listas as pessoas já cadastradas
         ModelAndView andView = new ModelAndView("cadastro/cadastropessoa");
-        andView.addObject("pessoas",pessoaRepository.findAll(PageRequest.of(0, 5, Sort.by("nome"))));
+        andView.addObject("pessoas", pessoaRepository.findAll(PageRequest.of(0, 5, Sort.by("nome"))));
         andView.addObject("pessoaobj", new Pessoa());
 
         return andView;
     }
 
-    @GetMapping(value = "/listapessoas")
-    public ModelAndView pessoas() {
-        ModelAndView andView = new ModelAndView("cadastro/cadastropessoa");
-        Iterable<Pessoa> pessoasIt = pessoaRepository.findAll();
-        andView.addObject("pessoas", pessoasIt);
-        andView.addObject("pessoaobj", new Pessoa());
-        return andView;
+    @GetMapping("/pessoaspag")
+    public ModelAndView carregaPessoasPorPaginacao(@PageableDefault(size = 5) Pageable pageable,
+                                                   ModelAndView modelAndView, @RequestParam("nomepesquisa") String nomepesquisa) { //modelAndView controlador de tela
+
+        //vai carregar do banco
+        Page<Pessoa> pagePessoa = pessoaRepository.findPessoaByNamePage(nomepesquisa, pageable); //vai trazer páginado pag1 pag2 etc
+
+        modelAndView.addObject("pessoas", pagePessoa);//variavel pessoa a nossa paginação dos objetos
+
+        modelAndView.addObject("pessoaobj", new Pessoa());//formulario carregar vazio evitar erro
+
+        modelAndView.addObject("nomepesquisa", nomepesquisa);
+
+        modelAndView.setViewName("cadastro/cadastropessoa"); //retorno da tela
+
+        return modelAndView;
+
     }
 
     @GetMapping("/editarpessoa/{idpessoa}")
@@ -144,32 +159,43 @@ public class PessoaController {
 
     @PostMapping("**/pesquisarpessoa")
     public ModelAndView pesquisar(@RequestParam("nomepesquisa") String nomepesquisa,
-                                  @RequestParam("pesqsexo") String pesqsexo) {
+                                  @RequestParam("pesqsexo") String pesqsexo,
+                                  @PageableDefault(size = 5, sort = {"nome"}) Pageable pageable) { //paginação tamanho 5 por ordenação de nome e pageable de paginas
 
-        List<Pessoa> pessoas = new ArrayList<Pessoa>();
+        Page<Pessoa> pessoas = null;
 
         //Filtro de busca por sexo caso tenha selecionado
         if (pesqsexo != null && !pesqsexo.isEmpty()) {
-            pessoas = pessoaRepository.findPessoaByNameSexo(nomepesquisa, pesqsexo);
 
-        } else {//Caso não tenha selecionado a opção do sexo irá só  pesquisar por nome
-            pessoas = pessoaRepository.findPessoaByName(nomepesquisa);
+            //pessoas = pessoaRepository.findPessoaByNameSexo(nomepesquisa.trim().toUpperCase(), pesqsexo);
+            pessoas = pessoaRepository.findPessoaByNameSexoPage(nomepesquisa, pesqsexo, pageable);
+        } else {
+            //pessoas = pessoaRepository.findPessoaByName(nomepesquisa.trim().toUpperCase());
+            pessoas = pessoaRepository.findPessoaByNamePage(nomepesquisa, pageable);
         }
 
+        //vai consultar e retornar para mesma tela de cadastro
         ModelAndView modelAndView = new ModelAndView("cadastro/cadastropessoa");
-        modelAndView.addObject("pessoas", pessoas); //vai passar pela lista
-        modelAndView.addObject("pessoaobj", new Pessoa()) ;
+
+        //passa a lista de pessoas
+        modelAndView.addObject("pessoas", pessoas);
+
+        //objeto vazio pro formulário trabalhar corretamente
+        modelAndView.addObject("pessoaobj", new Pessoa());
+
+        //deixar mantido em tela qnd pesqusiar o nome da pesosa
+        modelAndView.addObject("nomepesquisa", nomepesquisa);
 
         return modelAndView;
     }
 
     @GetMapping("**/baixarcurriculo/{idpessoa}")
-        public void baixarcurriculo(@PathVariable("idpessoa") Long idpessoa,
-        HttpServletResponse response) throws IOException {
+    public void baixarcurriculo(@PathVariable("idpessoa") Long idpessoa,
+                                HttpServletResponse response) throws IOException {
 
         /* Consultar objeto pessoa no banco de dados */
         Pessoa pessoa = pessoaRepository.findById(idpessoa).get();
-        if(pessoa.getCurriculo() != null){
+        if (pessoa.getCurriculo() != null) {
 
             /* Setar tamanho da resposta*/
             response.setContentLength(pessoa.getCurriculo().length);
@@ -180,9 +206,9 @@ public class PessoaController {
             /* Define o cabeçalho da resposta */
             String headerKey = "Content-Disposition";
             String headerValue = String.format("attachment; filename=\"%s\"", pessoa.getNomeFileCurriculo());
-                    response.setHeader(headerKey, headerValue);
+            response.setHeader(headerKey, headerValue);
 
-                /* Finaliza a resposta passando o arquivo */
+            /* Finaliza a resposta passando o arquivo */
             response.getOutputStream().write(pessoa.getCurriculo());
 
         }
