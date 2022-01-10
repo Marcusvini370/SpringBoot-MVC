@@ -5,7 +5,7 @@
 
 ## 🔖 Layout / Link de acesso 
 
-Você pode visualizar o layout do projeto através desse link https://https://spring-boot-web-mvc.herokuapp.com , login admin: , senha: admin.
+Você pode visualizar o layout do projeto através desse link https://spring-boot-web-mvc.herokuapp.com , login admin: , senha: admin.
 
 <h3 align="center">Apresentação do Projeto </h3>
 
